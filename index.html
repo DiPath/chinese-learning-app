@@ -979,7 +979,14 @@ function handleAnswer(isCorrect, chosen, btn) {
     document.getElementById('quizCard').classList.add('wrong');
   }
 
-  // Show example
+  // 回答後：単語・ピンイン・意味・例文をすべて表示
+  document.getElementById('cardWord').textContent = q.word;
+  document.getElementById('cardWord').style.fontSize = '48px';
+  document.getElementById('cardWord').style.display = 'block';
+  document.getElementById('cardPinyin').textContent = q.pinyin;
+  document.getElementById('cardPinyin').style.display = 'block';
+  document.getElementById('cardMeaning').textContent = q.meaning;
+  document.getElementById('cardMeaning').style.display = 'block';
   if(q.example) {
     document.getElementById('cardExample').textContent = q.example;
     document.getElementById('cardExample').style.display = 'block';
