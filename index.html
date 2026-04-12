@@ -1127,9 +1127,12 @@ function playAll() {
 function filterBuilderWords() {
   const q = document.getElementById('builderSearch').value.toLowerCase();
   const pool = q
-    ? vocab.filter(w =>
-        w.word.includes(q) || w.pinyin.toLowerCase().includes(q) || w.meaning.includes(q)
-      ).slice(0, 40)
+    ? vocab.filter(w => {
+        const word = String(w.word || '');
+        const pinyin = String(w.pinyin || '').toLowerCase();
+        const meaning = String(w.meaning || '');
+        return word.includes(q) || pinyin.includes(q) || meaning.includes(q);
+      }).slice(0, 40)
     : getRandom(vocab, 40);
 
   const container = document.getElementById('builderWordChips');
@@ -1275,10 +1278,13 @@ function buildSentenceCard(v, highlightWords) {
 function filterVocab() {
   const q = (document.getElementById('vocabSearch')?.value || '').toLowerCase();
   vocabFiltered = q
-    ? vocab.filter(w =>
-        w.word.includes(q) || w.pinyin.toLowerCase().includes(q) ||
-        w.meaning.includes(q) || (w.example && w.example.includes(q))
-      )
+    ? vocab.filter(w => {
+        const word = String(w.word || '');
+        const pinyin = String(w.pinyin || '').toLowerCase();
+        const meaning = String(w.meaning || '');
+        const example = String(w.example || '');
+        return word.includes(q) || pinyin.includes(q) || meaning.includes(q) || example.includes(q);
+      })
     : vocab;
 
   vocabPage = 0;
