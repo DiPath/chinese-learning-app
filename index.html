@@ -646,7 +646,14 @@
       <div class="card-word" id="cardWord"></div>
       <div class="card-pinyin" id="cardPinyin" style="display:none;"></div>
       <div class="card-meaning" id="cardMeaning" style="display:none;"></div>
-      <div class="card-example" id="cardExample" style="display:none;"></div>
+
+      <!-- 回答後に表示する答えエリア -->
+      <div id="answerReveal" style="display:none; margin-top:14px; padding-top:14px; border-top:1px dashed #ddd; width:100%;">
+        <div id="revealWord" style="font-size:36px; font-weight:700; color:var(--text);"></div>
+        <div id="revealPinyin" style="font-size:16px; color:var(--primary); margin:4px 0;"></div>
+        <div id="revealMeaning" style="font-size:14px; color:var(--text-light);"></div>
+        <div id="revealExample" style="font-size:13px; color:var(--text); margin-top:8px; font-style:italic; line-height:1.6;"></div>
+      </div>
     </div>
 
     <div class="quiz-choices" id="quizChoices"></div>
@@ -899,7 +906,7 @@ function nextQuestion() {
   // Reset card
   const card = document.getElementById('quizCard');
   card.className = 'flashcard';
-  document.getElementById('cardExample').style.display = 'none';
+  document.getElementById('answerReveal').style.display = 'none';
 
   // Set question content
   let questionText, questionType, answerKey;
@@ -979,18 +986,12 @@ function handleAnswer(isCorrect, chosen, btn) {
     document.getElementById('quizCard').classList.add('wrong');
   }
 
-  // 回答後：単語・ピンイン・意味・例文をすべて表示
-  document.getElementById('cardWord').textContent = q.word;
-  document.getElementById('cardWord').style.fontSize = '48px';
-  document.getElementById('cardWord').style.display = 'block';
-  document.getElementById('cardPinyin').textContent = q.pinyin;
-  document.getElementById('cardPinyin').style.display = 'block';
-  document.getElementById('cardMeaning').textContent = q.meaning;
-  document.getElementById('cardMeaning').style.display = 'block';
-  if(q.example) {
-    document.getElementById('cardExample').textContent = q.example;
-    document.getElementById('cardExample').style.display = 'block';
-  }
+  // 回答後：答えエリアに単語・ピンイン・意味・例文を表示
+  document.getElementById('revealWord').textContent = q.word;
+  document.getElementById('revealPinyin').textContent = q.pinyin;
+  document.getElementById('revealMeaning').textContent = q.meaning;
+  document.getElementById('revealExample').textContent = q.example || '';
+  document.getElementById('answerReveal').style.display = 'block';
 
   s.answered++;
   sessionStats.answered++;
@@ -1011,6 +1012,7 @@ function goNext() {
   document.getElementById('quizCard').onclick = null;
   document.getElementById('nextBtn').style.display = 'none';
   document.getElementById('skipBtn').style.display = 'inline-flex';
+  document.getElementById('answerReveal').style.display = 'none';
   nextQuestion();
 }
 
