@@ -438,6 +438,12 @@
     padding-bottom: 12px;
     z-index: 10;
   }
+  .vocab-thead-sticky {
+    position: sticky;
+    top: 68px;
+    z-index: 9;
+    background: #f0f0f0;
+  }
   .vocab-search-bar input {
     width: 100%;
     padding: 12px 16px 12px 42px;
@@ -463,8 +469,6 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    position: sticky;
-    top: 60px;
   }
   .vocab-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: top; }
   .vocab-table tr:hover td { background: #fafafa; }
@@ -729,9 +733,9 @@
     </div>
   </div>
   <div class="vocab-count" id="vocabCount"></div>
-  <div style="overflow-x:auto; background:white; border-radius:var(--radius); box-shadow:var(--shadow);">
+  <div style="background:white; border-radius:var(--radius); box-shadow:var(--shadow);">
     <table class="vocab-table" id="vocabTable">
-      <thead>
+      <thead class="vocab-thead-sticky">
         <tr>
           <th>単語</th>
           <th>ピンイン</th>
