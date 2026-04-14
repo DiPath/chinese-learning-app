@@ -508,6 +508,66 @@
     .card-word { font-size: 36px; }
   }
 
+  /* Review badge */
+  .tab-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 1px 6px;
+    min-width: 18px;
+    text-align: center;
+    line-height: 16px;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+
+  /* Review list */
+  .review-word-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .review-word-row:hover { background: #fafafa; }
+  .review-word-row:last-child { border-bottom: none; }
+  .review-word-main { flex: 1; }
+  .review-word-cn { font-size: 18px; font-weight: 700; }
+  .review-word-py { font-size: 12px; color: var(--primary); }
+  .review-word-ja { font-size: 12px; color: var(--text-light); }
+  .review-remove-btn {
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--text-light);
+    padding: 3px 8px;
+    white-space: nowrap;
+  }
+  .review-remove-btn:hover { border-color: var(--wrong); color: var(--wrong); }
+
+  .review-banner {
+    background: linear-gradient(135deg, #fff3cd, #fff8e7);
+    border: 1px solid #f9e5a0;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+  }
+  .review-banner:hover { box-shadow: var(--shadow); }
+  .review-banner .rcount { font-size: 32px; font-weight: 800; color: var(--accent); }
+  .review-banner .rlabel { font-size: 13px; color: #7a5c00; }
+  .review-banner .rarrow { margin-left: auto; font-size: 20px; color: var(--accent); }
+
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -530,7 +590,7 @@
     <span class="tab-icon">🏠</span>ホーム
   </button>
   <button class="tab-btn" onclick="showPage('quiz')" id="tab-quiz">
-    <span class="tab-icon">🧠</span>クイズ
+    <span class="tab-icon">🧠</span>クイズ<span class="tab-badge" id="reviewBadge" style="display:none;">0</span>
   </button>
   <button class="tab-btn" onclick="showPage('shadowing')" id="tab-shadowing">
     <span class="tab-icon">🎙️</span>シャドーイング
@@ -548,6 +608,15 @@
   <div class="hero">
     <h2>今日も一緒に学ぼう！</h2>
     <p id="homeQuote">単語を読み込み中...</p>
+  </div>
+
+  <div class="review-banner" id="reviewBanner" onclick="startReviewQuiz()" style="display:none;">
+    <div>
+      <div class="rcount" id="reviewBannerCount">0</div>
+      <div class="rlabel">単語が復習待ちです</div>
+      <div style="font-size:11px; color:#856404; margin-top:2px;">タップして復習クイズを開始</div>
+    </div>
+    <div class="rarrow">→</div>
   </div>
 
   <div class="feature-grid">
@@ -575,18 +644,22 @@
 
   <div class="card" style="margin-top:16px;">
     <div style="font-size:13px; color:var(--text-light); margin-bottom:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">📊 学習データ</div>
-    <div id="statsGrid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; text-align:center;">
+    <div id="statsGrid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; text-align:center;">
       <div>
-        <div style="font-size:28px; font-weight:800; color:var(--primary);" id="statTotal">-</div>
-        <div style="font-size:12px; color:var(--text-light);">総単語数</div>
+        <div style="font-size:24px; font-weight:800; color:var(--primary);" id="statTotal">-</div>
+        <div style="font-size:11px; color:var(--text-light);">総単語数</div>
       </div>
       <div>
-        <div style="font-size:28px; font-weight:800; color:var(--accent);" id="statQuizzed">-</div>
-        <div style="font-size:12px; color:var(--text-light);">クイズ回答数</div>
+        <div style="font-size:24px; font-weight:800; color:var(--accent);" id="statQuizzed">-</div>
+        <div style="font-size:11px; color:var(--text-light);">回答数</div>
       </div>
       <div>
-        <div style="font-size:28px; font-weight:800; color:var(--correct);" id="statAccuracy">-</div>
-        <div style="font-size:12px; color:var(--text-light);">正解率</div>
+        <div style="font-size:24px; font-weight:800; color:var(--correct);" id="statAccuracy">-</div>
+        <div style="font-size:11px; color:var(--text-light);">正解率</div>
+      </div>
+      <div style="cursor:pointer;" onclick="startReviewQuiz()">
+        <div style="font-size:24px; font-weight:800; color:#e67e22;" id="statReview">0</div>
+        <div style="font-size:11px; color:var(--text-light);">要復習</div>
       </div>
     </div>
   </div>
@@ -606,6 +679,7 @@
             <option value="word2pinyin">単語 → ピンイン</option>
             <option value="pinyin2word">ピンイン → 単語</option>
             <option value="mixed">ミックス（ランダム）</option>
+            <option value="review">📝 復習リストから出題</option>
           </select>
         </div>
         <div>
@@ -627,7 +701,20 @@
       <div style="font-size:13px; color:#856404; font-weight:600; margin-bottom:6px;">💡 使い方</div>
       <div style="font-size:13px; color:#7a5c00; line-height:1.6;">
         4択から正解を選んでください。<br>
-        例文も表示されるので文脈で覚えましょう。
+        間違えた・スキップした単語は自動で<strong>復習リスト</strong>に追加されます。
+      </div>
+    </div>
+
+    <!-- 復習リスト -->
+    <div class="card" id="reviewListCard">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+        <div style="font-size:15px; font-weight:700;">📝 復習リスト <span id="reviewListCount" style="font-size:13px; color:var(--text-light); font-weight:400;"></span></div>
+        <button class="btn btn-secondary" style="font-size:12px; padding:5px 10px;" onclick="clearAllReview()">全て削除</button>
+      </div>
+      <div id="reviewListBody">
+        <div style="text-align:center; padding:20px; color:var(--text-light); font-size:13px;">
+          まだ復習リストがありません。<br>クイズで間違えた単語が自動で追加されます。
+        </div>
       </div>
     </div>
   </div>
@@ -777,6 +864,89 @@ const VOCAB_PER_PAGE = 50;
 // Stats
 let sessionStats = JSON.parse(localStorage.getItem('cnStats') || '{"answered":0,"correct":0}');
 
+// 復習リスト
+let reviewList = JSON.parse(localStorage.getItem('cnReviewList') || '[]');
+
+function addToReview(wordId) {
+  if(wordId && !reviewList.includes(wordId)) {
+    reviewList.push(wordId);
+    localStorage.setItem('cnReviewList', JSON.stringify(reviewList));
+    updateReviewUI();
+  }
+}
+
+function removeFromReview(wordId) {
+  reviewList = reviewList.filter(id => id !== wordId);
+  localStorage.setItem('cnReviewList', JSON.stringify(reviewList));
+  updateReviewUI();
+  renderReviewList();
+}
+
+function clearAllReview() {
+  if(!reviewList.length) return;
+  if(!confirm(`復習リストの${reviewList.length}単語を全て削除しますか？`)) return;
+  reviewList = [];
+  localStorage.setItem('cnReviewList', JSON.stringify(reviewList));
+  updateReviewUI();
+  renderReviewList();
+  showToast('復習リストをクリアしました');
+}
+
+function updateReviewUI() {
+  const count = reviewList.length;
+  // バッジ
+  const badge = document.getElementById('reviewBadge');
+  if(badge) { badge.textContent = count; badge.style.display = count > 0 ? 'inline-block' : 'none'; }
+  // ホームバナー
+  const banner = document.getElementById('reviewBanner');
+  if(banner) { banner.style.display = count > 0 ? 'flex' : 'none'; document.getElementById('reviewBannerCount').textContent = count; }
+  // ホーム統計
+  const statReview = document.getElementById('statReview');
+  if(statReview) statReview.textContent = count;
+  // リスト件数
+  const cnt = document.getElementById('reviewListCount');
+  if(cnt) cnt.textContent = count > 0 ? `（${count}件）` : '（なし）';
+}
+
+function renderReviewList() {
+  const body = document.getElementById('reviewListBody');
+  if(!body) return;
+  const words = reviewList.map(id => vocab.find(v => v.id === id)).filter(Boolean);
+  if(!words.length) {
+    body.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-light); font-size:13px;">まだ復習リストがありません。<br>クイズで間違えた単語が自動で追加されます。</div>';
+    return;
+  }
+  body.innerHTML = words.map(w => `
+    <div class="review-word-row">
+      <div class="review-word-main">
+        <div class="review-word-cn">${w.word}</div>
+        <div class="review-word-py">${w.pinyin}</div>
+        <div class="review-word-ja">${w.meaning}</div>
+      </div>
+      <button class="review-remove-btn" onclick="removeFromReview('${w.id}')">✓ 覚えた</button>
+    </div>
+  `).join('');
+}
+
+function startReviewQuiz() {
+  const words = reviewList.map(id => vocab.find(v => v.id === id)).filter(Boolean);
+  if(!words.length) { showToast('復習リストが空です'); return; }
+  showPage('quiz');
+  document.getElementById('quizType').value = 'review';
+  // 直接スタート
+  quizState = {
+    type: 'mixed',
+    questions: shuffle([...words]).slice(0, Math.min(words.length, 20)),
+    current: 0, correct: 0, answered: 0,
+    total: Math.min(words.length, 20),
+    isReviewMode: true,
+  };
+  document.getElementById('quizSetup').style.display = 'none';
+  document.getElementById('quizGame').style.display = 'block';
+  document.getElementById('quizResult').style.display = 'none';
+  nextQuestion();
+}
+
 async function loadVocab() {
   try {
     const res = await fetch('./vocab.json');
@@ -810,6 +980,10 @@ function onVocabLoaded() {
 
   // Init builder
   filterBuilderWords();
+
+  // Init review list UI
+  updateReviewUI();
+  renderReviewList();
 }
 
 // ==========================================
@@ -865,15 +1039,29 @@ function showQuizSetup() {
 function startQuiz() {
   const type = document.getElementById('quizType').value;
   const count = parseInt(document.getElementById('quizCount').value);
-  const pool = getRandom(vocab, count);
+
+  let pool, actualType;
+  if(type === 'review') {
+    const reviewWords = reviewList.map(id => vocab.find(v => v.id === id)).filter(Boolean);
+    if(!reviewWords.length) {
+      showToast('📝 復習リストが空です。クイズで間違えた単語が追加されます');
+      return;
+    }
+    pool = shuffle([...reviewWords]).slice(0, Math.min(count, reviewWords.length));
+    actualType = 'mixed';
+  } else {
+    pool = getRandom(vocab, count);
+    actualType = type;
+  }
 
   quizState = {
-    type,
+    type: actualType,
     questions: pool,
     current: 0,
     correct: 0,
     answered: 0,
-    total: count,
+    total: pool.length,
+    isReviewMode: type === 'review',
   };
 
   document.getElementById('quizSetup').style.display = 'none';
@@ -982,8 +1170,10 @@ function handleAnswer(isCorrect, chosen, btn) {
     s.correct++;
     document.getElementById('quizCard').classList.add('correct');
     speakText(q.word, 'zh-TW');
+    if(s.isReviewMode) removeFromReview(q.id);  // 復習モードで正解 → リストから削除
   } else {
     document.getElementById('quizCard').classList.add('wrong');
+    addToReview(q.id);  // 不正解 → 復習リストに追加
   }
 
   // 回答後：答えエリアに単語・ピンイン・意味・例文を表示
@@ -1017,7 +1207,15 @@ function goNext() {
 }
 
 function skipQuestion() {
-  quizState.current++;
+  const s = quizState;
+  if(s.current < s.questions.length) {
+    addToReview(s.questions[s.current].id);  // スキップ → 復習リストに追加
+  }
+  s.current++;
+  document.getElementById('nextBtn').style.display = 'none';
+  document.getElementById('skipBtn').style.display = 'inline-flex';
+  document.getElementById('answerReveal').style.display = 'none';
+  document.getElementById('quizCard').onclick = null;
   nextQuestion();
 }
 
